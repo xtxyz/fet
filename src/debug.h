@@ -24,6 +24,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+#define DEBUG /* I don't know how I'm supposed to do this, so I'm doing it this way - JD */
+
 #ifndef DEBUG_H
 #define DEBUG_H
 
