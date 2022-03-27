@@ -1,5 +1,11 @@
 [![build status](https://travis-ci.org/derf/feh.svg?branch=master)](https://travis-ci.org/derf/feh)
 
+---
+A fork to introduce better controls for a touch screen.
+---
+
+Original readme below
+---
 Feh – Image viewer and Cataloguer
 ---
 
