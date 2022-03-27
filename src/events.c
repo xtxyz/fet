@@ -228,9 +228,24 @@ static void feh_event_handle_ButtonPress(XEvent * ev)
 
 	} else if (feh_is_bb(EVENT_pan, button, state)) {
 		D(("Next button, but could be pan mode\n"));
-		opt.mode = MODE_NEXT;
-		winwid->mode = MODE_NEXT;
+
+		float wf, hf = 0;
+		wf = (float) ev->xbutton.x / winwid->w;
+		hf = (float) ev->xbutton.y / winwid->h;
+
+		if (wf < 0.5) {
+		    opt.mode = MODE_PREV;
+		    winwid->mode = MODE_PREV;
+
+		} else if (wf > 0.5) {
+		    opt.mode = MODE_NEXT;
+		    winwid->mode = MODE_NEXT;
+		}
+		
 		D(("click offset is %d,%d\n", ev->xbutton.x, ev->xbutton.y));
+		D(("offset fraction is %f,%f\n", wf, hf));
+		D(("w h %d,%d\n", winwid->w, winwid->h));
+
 		winwid->click_offset_x = ev->xbutton.x - winwid->im_x;
 		winwid->click_offset_y = ev->xbutton.y - winwid->im_y;
 		winwid->click_start_time = time(NULL);
@@ -389,6 +404,12 @@ static void feh_event_handle_ButtonRelease(XEvent * ev)
 					}
 				}
 			}
+		} else if (opt.mode == MODE_PREV) {
+		    opt.mode = MODE_NORMAL;
+			winwid->mode = MODE_NORMAL;
+			if (winwid->type == WIN_TYPE_SLIDESHOW)
+				slideshow_change_image(winwid, SLIDE_PREV, 1);
+
 		} else {
 			opt.mode = MODE_NORMAL;
 			winwid->mode = MODE_NORMAL;
@@ -565,13 +586,13 @@ static void feh_event_handle_MotionNotify(XEvent * ev)
 
 			winwidget_render_image(winwid, 0, 1);
 		}
-	} else if ((opt.mode == MODE_PAN) || (opt.mode == MODE_NEXT)) {
+	} else if ((opt.mode == MODE_PAN) || (opt.mode == MODE_NEXT) || (opt.mode == MODE_PREV)) {
 		int orig_x, orig_y;
 
 		while (XCheckTypedWindowEvent(disp, ev->xmotion.window, MotionNotify, ev));
 		winwid = winwidget_get_from_window(ev->xmotion.window);
 		if (winwid) {
-			if (opt.mode == MODE_NEXT) {
+		    if ((opt.mode == MODE_NEXT) || (opt.mode == MODE_PREV)) {
 				if ((abs(winwid->click_offset_x - (ev->xmotion.x - winwid->im_x)) > FEH_JITTER_OFFSET)
 						|| (abs(winwid->click_offset_y - (ev->xmotion.y - winwid->im_y)) > FEH_JITTER_OFFSET)
 						|| (time(NULL) - winwid->click_start_time > FEH_JITTER_TIME)) {
